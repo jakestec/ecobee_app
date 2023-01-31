@@ -5,6 +5,8 @@ from schedule import every, repeat, run_pending
 import time
 import logging
 
+#testing git
+
 logging.basicConfig(filename='humidity_monitor.log', filemode='w', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
 def getAccesToken():
