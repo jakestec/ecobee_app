@@ -5,7 +5,7 @@ from schedule import every, repeat, run_pending
 import time
 import logging
 
-#test123
+#test1233
 
 logging.basicConfig(filename='humidity_monitor.log', filemode='w', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
