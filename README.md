@@ -22,8 +22,14 @@ The outside temperature to indoor humidity setpoint is currently hardcoded to wo
     elif current_outside_temp < -29:
         return 16
 
+api_data.json is expected to hold your api_key and refresh_token, which are used by the app to re-generate the access_token due to its 60min expiry.
 
-# To do
+{"api_key": "8N...Sz", "access_token": "eyJhbGciOiJSUzI1NiIs...LJZ3Dg", "refresh_token": "HIm...Ccymz"}
+
+api_auth_setup.py can be used to register the application with your ecobee account and popualte your api_data.json file with a refresh_token and initial access_token. It requires at least an api_key value to run.
+
+{"api_key": "8N...Sz"}
+
+# Todo
 Create a webapp which will let the user authenticate to their ecobee account via OAuth 2.0 
-
 Allow the user to set desired humidity setpoints via webapp and monitor the running application 
