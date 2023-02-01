@@ -1,4 +1,4 @@
-# ecobee_app
+# Ecobee Humidity Monitor
 
 A simple python application that monitors the humidity setpoint on an ecobee thermostat and then modifies the setpoint based on the outdoor temperature. 
 
