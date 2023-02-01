@@ -4,7 +4,7 @@ A simple python application that monitors the humidity setpoint on an ecobee the
 
 The outside temperature to indoor humidity setpoint is currently hardcoded to work best for my home.
 
-
+```
     if current_outside_temp > 4:
         return 38
     elif current_outside_temp <= 4 and current_outside_temp >= -1:
@@ -21,7 +21,7 @@ The outside temperature to indoor humidity setpoint is currently hardcoded to wo
         return 20
     elif current_outside_temp < -29:
         return 16
-
+```
 api_data.json is expected to hold your api_key and refresh_token, which are used by the app to re-generate the access_token due to its 60min expiry.
 
 `{"api_key": "8N...Sz", "access_token": "eyJhbGciOiJSUzI1NiIs...LJZ3Dg", "refresh_token": "HIm...Ccymz"}`
