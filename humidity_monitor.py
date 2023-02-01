@@ -129,6 +129,7 @@ def watchHumidity():
     else:
         logging.info(f'No change needed, keeping setpoint: {humidity_setpoint}')
 
+watchHumidity()
 while True:
     run_pending()
     time.sleep(1)
