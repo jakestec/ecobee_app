@@ -31,5 +31,5 @@ api_auth_setup.py can be used to register the application with your ecobee accou
 `{"api_key": "8N...Sz"}`
 
 # Todo
-Create a webapp which will let the user authenticate to their ecobee account via OAuth 2.0 
-Allow the user to set desired humidity setpoints via webapp and monitor the running application 
+- Create a webapp which will let the user authenticate to their ecobee account via OAuth 2.0 
+- Allow the user to set desired humidity setpoints via webapp and monitor the running application 
