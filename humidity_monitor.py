@@ -83,11 +83,9 @@ def setHumidity(access_token, setpoint):
 
     url = "https://api.ecobee.com/1/thermostat?format=json"
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + access_token}
-    #data = '{"selection":{"selectionType":"registered","selectionMatch":"","includeSettings":"true"}}'
     data = {"selection" : {"selectionType":"registered","selectionMatch":""},"thermostat": {"settings":{"humidity":str(setpoint)}}}
     data_json = json.dumps(data)
     url_encoded_data = urllib.parse.quote_plus(data_json)
-    #url += url_encoded_data
 
     try:
         response = requests.post(url, headers=headers, data=url_encoded_data)
@@ -129,7 +127,8 @@ def watchHumidity():
     else:
         logging.info(f'No change needed, keeping setpoint: {humidity_setpoint}')
 
-watchHumidity()
-while True:
-    run_pending()
-    time.sleep(1)
+if __name__ == "__main__":
+    watchHumidity()
+    while True:
+        run_pending()
+        time.sleep(1)
