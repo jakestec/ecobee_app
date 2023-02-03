@@ -123,9 +123,9 @@ def watchHumidity():
 
     if humidity_setpoint != required_humidity:
         setHumidity(access_token, required_humidity)
-        logging.info(f'Humidity change needed, outdoor temp: {outside_temp} new setpoint: {required_humidity}')
+        logging.info(f'Humidity change needed, outdoor temp: {outside_temp}, new setpoint: {required_humidity}')
     else:
-        logging.info(f'No change needed, keeping setpoint: {humidity_setpoint}')
+        logging.info(f'No change needed, outdoor temp: {outside_temp}, keeping setpoint: {humidity_setpoint}')
 
 if __name__ == "__main__":
     watchHumidity()
