@@ -4,22 +4,21 @@ import urllib.parse
 from schedule import every, repeat, run_pending
 import time
 import logging
+import os
 
 logging.basicConfig(filename='humidity_monitor.log', filemode='w', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
+# load app api secrets from env
+api_data = {}
+api_data['api_key'] = os.environ['API_KEY']
+api_data['refresh_token'] = os.environ['REFRESH_TOKEN']
+
 def getAccesToken():
-
-    with open('api_data.json') as api_data:
-        api_data = json.load(api_data)
-
-    return refreshToken(api_data['refresh_token'], api_data['api_key'])
-
-def refreshToken(refresh_token, api_key):
 
     refresh_token_data = {
     'grant_type': 'refresh_token',
-    'code': refresh_token,
-    'client_id': api_key,
+    'code': api_data['refresh_token'],
+    'client_id': api_data['api_key'],
     }
 
     try:
