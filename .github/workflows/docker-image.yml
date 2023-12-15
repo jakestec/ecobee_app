@@ -15,4 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      env:
+        REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+        API_KEY: ${{ secrets.API_KEY }}
+      run: docker build . --file Dockerfile --tag humidity_monitor:$(date +%s) --build-arg api_key=$API_KEY --build-arg refresh_token=$REFRESH_TOKEN
