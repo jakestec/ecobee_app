@@ -22,16 +22,21 @@ The outside temperature to indoor humidity setpoint is currently hardcoded to wo
     elif current_outside_temp < -29:
         return 16
 ```
-Your 'API_KEY' and 'REFRESH_TOKEN' are expected to be read in from the enviroment. These are used by the app to re-generate the access_token due to its 60min expiry.
+Your 'API_KEY' and 'REFRESH_TOKEN' are expected to be read in from the enviroment. These are used by the app to re-generate the access_token regularly due to its 60min expiry.
 
 ```
 api_data['api_key'] = os.environ['API_KEY']
 api_data['refresh_token'] = os.environ['REFRESH_TOKEN']
 ```
 
-api_auth_setup.py can be used to register the application with your ecobee account and get your refresh token. It requires at an api_key value which is provided via 'api_data.json', it will then populate the refresh and access token into the same file.
+api_auth_setup.py can be used to register the application with your ecobee account and get your refresh token. It requires an api_key which is provided via 'api_data.json', it will then populate the refresh and access token into the same file.
 
 `{"api_key": "8N...Sz"}`
+
+The refresh token is valid for 1 year and will need to be manually renewed and Docker container rebuilt. 
+
+# CI/CD Support
+Since the 'API_KEY' and 'REFRESH_TOKEN' are provided via enviroment variables we can inject these easily into our Docker image manually or via a CI tool. 
 
 # Todo
 - Create a webapp which will let the user authenticate to their ecobee account via OAuth 2.0 
