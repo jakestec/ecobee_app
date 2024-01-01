@@ -41,3 +41,4 @@ Since the 'API_KEY' and 'REFRESH_TOKEN' are provided via enviroment variables we
 # Todo
 - Create a webapp which will let the user authenticate to their ecobee account via OAuth 2.0 
 - Allow the user to set desired humidity setpoints via webapp and monitor the running application
+- Add github action to build and upload container to dockerhub
