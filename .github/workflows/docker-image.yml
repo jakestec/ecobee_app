@@ -2,20 +2,25 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
+    branches: 
+      - "main"
+env:
+  BUILD_DATE: $(date +'%Y%m%d-%M%S')
+  REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+  API_KEY: ${{ secrets.API_KEY }}
+  
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout Code
+      uses: actions/checkout@v3
     - name: Build the Docker image
-      env:
-        REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
-        API_KEY: ${{ secrets.API_KEY }}
-      run: docker build . --file Dockerfile --tag humidity_monitor:$(date +%s) --build-arg api_key=$API_KEY --build-arg refresh_token=$REFRESH_TOKEN
+      run: docker build .  --platform linux/arm64/v8 --file Dockerfile --tag humidity_monitor:arm64-$BUILD_DATE --build-arg api_key=$API_KEY --build-arg refresh_token=$REFRESH_TOKEN
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_LOGIN }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+    - name: Push the Docker image
+      run: docker push jakestec/humidity_monitor:latest_arm64-$BUILD_DATE
