@@ -28,7 +28,7 @@ def requiredHumidityLevel(current_outside_temp):
     elif current_outside_temp < -29:
         return 16
 
-@repeat(every(1).minutes)
+@repeat(every(30).minutes)
 def watchHumidity():
 
     # initialize params variables for API calls and wrapper object
