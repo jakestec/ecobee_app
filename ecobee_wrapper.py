@@ -11,16 +11,11 @@ class EccobeeWrapper:
         self._fetchAccesToken()
 
     def _fetchAccesToken(self):
-        '''
+        
         data = {
         'grant_type': 'refresh_token',
         'code': os.environ['REFRESH_TOKEN'],
         'client_id': os.environ['API_KEY'],
-        }'''
-        data = {
-        'grant_type': 'refresh_token',
-        'code': 'HIm1M5KADrTtvCimU9AaC0UlFOHfZhv15VlefyUuCcymz',
-        'client_id': '8NOo7OYtWhwncIenjQqxTwsHIHBf8iSz',
         }
 
         try:
@@ -39,8 +34,16 @@ class EccobeeWrapper:
             ep_params['body'] = urllib.parse.quote_plus(ep_params['body'])
         if data:
             data = urllib.parse.quote_plus(data)
-        response = requests.request(method=http_method, url=full_url, headers=headers, params=ep_params, data=data)
-        return response.json()
+
+        try:
+            response = requests.request(method=http_method, url=full_url, headers=headers, params=ep_params, data=data)
+        except requests.exceptions.RequestException as e:
+            logging.error(e)
+
+        if 299 >= response.status_code >= 200:
+            return response.json()
+        else:
+            logging.error(f"Non-200 response code when trying request: {response.status_code}")
 
     def get(self, endpoint: str, ep_params: dict = None) -> list[dict]:
 
