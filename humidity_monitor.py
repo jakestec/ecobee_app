@@ -1,97 +1,13 @@
-import json
-import requests
-import urllib.parse
 from schedule import every, repeat, run_pending
+from ecobee_wrapper import EccobeeWrapper
 import time
 import logging
-import os
 
 logging.basicConfig(filename='humidity_monitor.log', filemode='w', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
-# load app api secrets from env
-api_data = {}
-api_data['api_key'] = os.environ['API_KEY']
-api_data['refresh_token'] = os.environ['REFRESH_TOKEN']
-
-def getAccesToken():
-
-    refresh_token_data = {
-    'grant_type': 'refresh_token',
-    'code': api_data['refresh_token'],
-    'client_id': api_data['api_key'],
-    }
-
-    try:
-        response = requests.post("https://api.ecobee.com/token", data = refresh_token_data)
-    except requests.exceptions.RequestException as e:
-        logging.error(e)
-
-    return response.json().get('access_token')
-
 def convertTemp(temp):
 
-    return (temp - 320) * 5 / 90
-
-def getCurrentHumidity(access_token):
-
-    url = "https://api.ecobee.com/1/thermostat?format=json&body="
-    headers = {'Content-Type': 'text/json', 'Authorization': 'Bearer ' + access_token}
-    data = '{"selection":{"selectionType":"registered","selectionMatch":"","includeRuntime":true}}'
-    url_encoded_data = urllib.parse.quote_plus(data)
-    url += url_encoded_data
-
-    try:
-        response = requests.get(url, headers=headers)
-    except requests.exceptions.RequestException as e:
-        logging.error(e)
-
-    return response.json()['thermostatList'][0]['runtime']['actualHumidity']
-
-def getHumiditySetpoint(access_token):
-
-    url = "https://api.ecobee.com/1/thermostat?format=json&body="
-    headers = {'Content-Type': 'text/json', 'Authorization': 'Bearer ' + access_token}
-    data = '{"selection":{"selectionType":"registered","selectionMatch":"","includeSettings":"true"}}'
-    url_encoded_data = urllib.parse.quote_plus(data)
-    url += url_encoded_data
-
-    try:
-        response = requests.get(url, headers=headers)
-    except requests.exceptions.RequestException as e:
-        logging.error(e)
-
-    return int(response.json()['thermostatList'][0]['settings']['humidity'])
-
-def getOutsideTemp(access_token):
-
-    url = "https://api.ecobee.com/1/thermostat?format=json&body="
-    headers = {'Content-Type': 'application/json;charset=UTF-8', 'Authorization': 'Bearer ' + access_token}
-    data = '{"selection":{"selectionType":"registered","selectionMatch":"","includeWeather":true}}'
-    url_encoded_data = urllib.parse.quote_plus(data)
-    url += url_encoded_data
-
-    try:
-        response = requests.get(url, headers=headers)
-    except requests.exceptions.RequestException as e:
-        logging.error(e)
-        
-    outdoor_temp = response.json()['thermostatList'][0]['weather']['forecasts'][0]['temperature']
-    return round(convertTemp(outdoor_temp))
-
-def setHumidity(access_token, setpoint):
-
-    url = "https://api.ecobee.com/1/thermostat?format=json"
-    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + access_token}
-    data = {"selection" : {"selectionType":"registered","selectionMatch":""},"thermostat": {"settings":{"humidity":str(setpoint)}}}
-    data_json = json.dumps(data)
-    url_encoded_data = urllib.parse.quote_plus(data_json)
-
-    try:
-        response = requests.post(url, headers=headers, data=url_encoded_data)
-    except requests.exceptions.RequestException as e:
-        logging.error(e)
-
-    return response.text
+    return round((temp - 320) * 5 / 90)
 
 def requiredHumidityLevel(current_outside_temp):
     
@@ -115,13 +31,19 @@ def requiredHumidityLevel(current_outside_temp):
 @repeat(every(30).minutes)
 def watchHumidity():
 
-    access_token = getAccesToken()
-    outside_temp = getOutsideTemp(access_token)
-    humidity_setpoint = getHumiditySetpoint(access_token)
+    # initialize params variables for API calls and wrapper object
+    settings_params = {'format': 'json', 'body':'{"selection":{"selectionType":"registered","selectionMatch":"","includeSettings":true}}'}
+    weather_params = {'format': 'json', 'body':'{"selection":{"selectionType":"registered","selectionMatch":"","includeWeather":true}}'}
+    eb = EccobeeWrapper("api.ecobee.com")
+
+    outside_temp = convertTemp(eb.get("thermostat", ep_params=weather_params.copy())['thermostatList'][0]['weather']['forecasts'][0]['temperature'])
+    humidity_setpoint = eb.get("thermostat", ep_params=settings_params.copy())['thermostatList'][0]['settings']['humidity']
     required_humidity = requiredHumidityLevel(outside_temp)
 
-    if humidity_setpoint != required_humidity:
-        setHumidity(access_token, required_humidity)
+    if int(humidity_setpoint) != required_humidity:
+        set_params = {'format': 'json'}
+        set_data = '{"selection" : {"selectionType":"registered","selectionMatch":""},"thermostat": {"settings":{"humidity":'+str(humidity_setpoint)+'}}}'
+        eb.post("thermostat", ep_params=set_params, data=set_data)
         logging.info(f'Humidity change needed, outdoor temp: {outside_temp}, new setpoint: {required_humidity}')
     else:
         logging.info(f'No change needed, outdoor temp: {outside_temp}, keeping setpoint: {humidity_setpoint}')
