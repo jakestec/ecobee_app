@@ -11,11 +11,16 @@ class EccobeeWrapper:
         self._fetchAccesToken()
 
     def _fetchAccesToken(self):
-
+        '''
         data = {
         'grant_type': 'refresh_token',
         'code': os.environ['REFRESH_TOKEN'],
         'client_id': os.environ['API_KEY'],
+        }'''
+        data = {
+        'grant_type': 'refresh_token',
+        'code': 'HIm1M5KADrTtvCimU9AaC0UlFOHfZhv15VlefyUuCcymz',
+        'client_id': '8NOo7OYtWhwncIenjQqxTwsHIHBf8iSz',
         }
 
         try:
@@ -30,12 +35,11 @@ class EccobeeWrapper:
         full_url = self.url + endpoint
         headers = {'Content-Type': 'application/json;charset=UTF-8', 'Authorization': 'Bearer ' + self.access_token}
         # ecobee API asks that JSON data be URL encoded for optimal comptability
-        if 'body' in ep_params:
+        if ep_params and 'body' in ep_params:
             ep_params['body'] = urllib.parse.quote_plus(ep_params['body'])
         if data:
             data = urllib.parse.quote_plus(data)
         response = requests.request(method=http_method, url=full_url, headers=headers, params=ep_params, data=data)
-
         return response.json()
 
     def get(self, endpoint: str, ep_params: dict = None) -> list[dict]:

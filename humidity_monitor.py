@@ -5,24 +5,6 @@ import logging
 
 logging.basicConfig(filename='humidity_monitor.log', filemode='w', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
-runtime_params = {
-    'format': 'json', 
-    'body':'{"selection":{"selectionType":"registered","selectionMatch":"","includeRuntime":true}}'
-    }
-
-settings_params = {
-    'format': 'json', 
-    'body':'{"selection":{"selectionType":"registered","selectionMatch":"","includeSettings":true}}'
-    }
-
-weather_params = {
-    'format': 'json', 
-    'body':'{"selection":{"selectionType":"registered","selectionMatch":"","includeWeather":true}}'
-    }
-
-set_params = {'format': 'json'}
-set_data = '{"selection" : {"selectionType":"registered","selectionMatch":""},"thermostat": {"settings":{"humidity":"32"}}}'
-
 def convertTemp(temp):
 
     return round((temp - 320) * 5 / 90)
@@ -49,12 +31,18 @@ def requiredHumidityLevel(current_outside_temp):
 @repeat(every(1).minutes)
 def watchHumidity():
 
+    # initialize params variables for API calls and wrapper object
+    settings_params = {'format': 'json', 'body':'{"selection":{"selectionType":"registered","selectionMatch":"","includeSettings":true}}'}
+    weather_params = {'format': 'json', 'body':'{"selection":{"selectionType":"registered","selectionMatch":"","includeWeather":true}}'}
     eb = EccobeeWrapper("api.ecobee.com")
-    outside_temp = convertTemp(eb.get("thermostat", ep_params=weather_params)['thermostatList'][0]['weather']['forecasts'][0]['temperature'])
-    humidity_setpoint = eb.get("thermostat", ep_params=settings_params)['thermostatList'][0]['settings']['humidity']
+
+    outside_temp = convertTemp(eb.get("thermostat", ep_params=weather_params.copy())['thermostatList'][0]['weather']['forecasts'][0]['temperature'])
+    humidity_setpoint = eb.get("thermostat", ep_params=settings_params.copy())['thermostatList'][0]['settings']['humidity']
     required_humidity = requiredHumidityLevel(outside_temp)
 
-    if humidity_setpoint != required_humidity:
+    if int(humidity_setpoint) != required_humidity:
+        set_params = {'format': 'json'}
+        set_data = '{"selection" : {"selectionType":"registered","selectionMatch":""},"thermostat": {"settings":{"humidity":'+str(humidity_setpoint)+'}}}'
         eb.post("thermostat", ep_params=set_params, data=set_data)
         logging.info(f'Humidity change needed, outdoor temp: {outside_temp}, new setpoint: {required_humidity}')
     else:
