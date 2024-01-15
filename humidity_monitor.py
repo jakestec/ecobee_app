@@ -42,9 +42,9 @@ def watchHumidity():
 
     if int(humidity_setpoint) != required_humidity:
         set_params = {'format': 'json'}
-        set_data = '{"selection" : {"selectionType":"registered","selectionMatch":""},"thermostat": {"settings":{"humidity":'+str(humidity_setpoint)+'}}}'
+        set_data = '{"selection" : {"selectionType":"registered","selectionMatch":""},"thermostat": {"settings":{"humidity":'+str(required_humidity)+'}}}'
         eb.post("thermostat", ep_params=set_params, data=set_data)
-        logging.info(f'Humidity change needed, outdoor temp: {outside_temp}, new setpoint: {required_humidity}')
+        logging.info(f'Humidity change needed, outdoor temp: {outside_temp}, current setpoint: {humidity_setpoint}, new setpoint: {required_humidity}')
     else:
         logging.info(f'No change needed, outdoor temp: {outside_temp}, keeping setpoint: {humidity_setpoint}')
 
